@@ -8,3 +8,5 @@ utilizes GAS script cache, Google Drive and Google Sheets
 provided by the mirror.finance community
 
 admin: mirrorstats@gmail.com / tg: @clemensg
+
+// chart builder modules will be pushed soon //
