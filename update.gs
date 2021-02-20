@@ -103,7 +103,7 @@ function receiveBotCommand(update) {
     return;
   }
   if (msgtext.slice(0,3) == '/p ' || msgtext.includes('/p@mirror_statbot '|| msgtext.slice(0,7) == '/price ' || msgtext.includes('/price@mirror_statbot '))) {
-    bot_assetPricesStatsCommand(chatid,msgtext.split(' ')[1],'s',chattype);
+    bot_assetPricesStatsCommand(chatid,msgtext.split(' ')[1],'p',chattype);
     return;
   }
   if (msgtext.slice(0,3) == '/c ' || msgtext.includes('/c@mirror_statbot ') || msgtext.slice(0,7) == '/chart ' || msgtext.includes('/chart@mirror_statbot ')) {
