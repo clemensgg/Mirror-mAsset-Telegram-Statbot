@@ -100,6 +100,11 @@ function subDaysFromDate(date,d){
   return result;
 }
 
+function emptyTrash() {  
+  Drive.Files.emptyTrash();
+  return;
+}
+
 function notifyAdmin(method,msg) {
   GmailApp.sendEmail(adminmail,method,msg);
 }
