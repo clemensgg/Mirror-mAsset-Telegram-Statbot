@@ -82,6 +82,11 @@ function normalizeTimeframe(timeframe) {
   return false;
 }
 
+function subDaysFromDate(date,d){
+  var result = new Date(date-d*(24*3600*1000));
+  return result;
+}
+
 function notifyAdmin(method,msg) {
   GmailApp.sendEmail(adminmail,method,msg);
 }
