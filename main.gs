@@ -5,7 +5,18 @@ var webAppUrl = "https://script.google.com/macros/s/AKfycbxindpiuGdbfeYGuMj9gilp
 var cache = CacheService.getScriptCache(); 
 var sheetId = "1JTVWrANeXP3OVBmjlWXqXmWpegpW7uOHvFoft7RN-V0";
 var sheet = SpreadsheetApp.openById(sheetId).getSheets()[0];
+var drive7dcharts = DriveApp.getFoldersByName('7dcharts').next();
+var drive1dcharts = DriveApp.getFoldersByName('1dcharts').next();
+var drive7dcharts = DriveApp.getFoldersByName('7dLPcharts').next();
+var drive1dcharts = DriveApp.getFoldersByName('1dLPcharts').next();
+var drive7dstatcharts = DriveApp.getFoldersByName('7dSTATcharts').next();
+var drive1dstatcharts = DriveApp.getFoldersByName('1dSTATcharts').next();
 var thismoment = new Date();
+var oneday = 24*3600*1000;
+var sevendays = 7*24*3600*1000;
+var fifteenminutes = 15*60*1000;
+var fourhours = 4*60*60*1000;
+var threemonths = oneday*92;
 var color = {
   sky: '#47d7e2',
   deepblue: '#121a2f',
@@ -15,7 +26,7 @@ var color = {
   orange: '#d96718',
   darkorange: '#8a410f'
 }
-var adminmail = 'mirror_statbot@gmail.com';
+var adminmail = 'mirrorstatbot@gmail.com';
 
 //// SET / DELETE WEBHOOK TO TG BOT
 function setWebHook() {
