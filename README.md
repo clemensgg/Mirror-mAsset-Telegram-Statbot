@@ -3,7 +3,7 @@ telegram bot providing market data from mirror.finance built on Google Apps Scri
 
 - live: https://t.me/mirror_statbot
 
-utilizes GAS script cache, Drive API, Charts API and Sheets API
+utilizes mirror.finance graphql API, GAS script cache, Drive API, Charts API and Sheets API
 
 provided by the mirror.finance community
 
