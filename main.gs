@@ -3,6 +3,8 @@ var bottoken = "1597133886:AAEXXzz0PZ8KKYDMGKZRDk2jnNY0w1HALX0";
 var tgurl = "https://api.telegram.org/bot" + bottoken;
 var webAppUrl = "https://script.google.com/macros/s/AKfycbxindpiuGdbfeYGuMj9gilpVnELGv7yZYKuasIvODsiQWGXIvx5ynW6/exec";
 var cache = CacheService.getScriptCache(); 
+var sheetId = "1JTVWrANeXP3OVBmjlWXqXmWpegpW7uOHvFoft7RN-V0";
+var sheet = SpreadsheetApp.openById(sheetId).getSheets()[0];
 var thismoment = new Date();
 var color = {
   sky: '#47d7e2',
