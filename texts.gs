@@ -10,8 +10,9 @@ var chartwarntext = '<i>chart not available at the moment. please try later</i>'
 var dmmehint = '<i>dm me for full functionality</i> @mirror_statbot';
 var infotext = '<b>MIRROR STATBOT by the Mirror community</b>\n\ncommands:\n<code>/stats</code> - mirror.finance statistics\n<code>/p mAsset</code> - prices for specific mAsset\n<code>/p all</code> - prices for all mAssets\n<code>/s mAsset</code> - swap statistics (mAsset)\n<code>/s all</code> - swap statistics (all)\n<code>/c mAsset timeframe</code> - price chart\n<code>/c mAsset timeframe LP</code> - LP chart\n<code>/info</code> - bot info\n\n<i>mAsset input is non case-sensitive (use tickers like mETH, mAAPL, mtsla...) / timeframes: 1d, 7d\n\n</i>🙏 Proposal #71 on mirror.finance has passed! Further development of @mirror_statbot is ensured. Thank you to everyone who voted!\n\nadmin: @clemensg' + linebreak + 'participate: ' + mirrorurl;
 var choosetext = '<i>choose mAsset</i>';
+var choosecharttext = '<i>choose chart layout\n\nplease note that some 7-day charts are still building from initial logging start</i>';
 var caption = bothandle;
-var offtext = '📱 <a href="https://mirrorwallet.com/">buy and trade mAssets on your mobile!</a>';
+var offtext = '📱 <a href="https://mirrorwallet.com/">buy & trade mAssets on your mobile</a>';
 
 function generateMirrorStatsText() {
   var data = getCache();
@@ -22,8 +23,8 @@ function generateMirrorStatsText() {
   if (assets != false) {
     var mir = 'MIR/UST price: ' + data.mirprice;
     body = mir + linebreak + 'MIR circ. supply: ' + parseFloat(stats.mirSupplyCirculating).toLocaleString() + '\nMIR total supply: ' + parseFloat(stats.mirSupplyTotal).toLocaleString() + '\nMIR gov APY: ' + (parseFloat(stats.govAPY)).toLocaleString() + ' %';
-    body = body + linebreak + 'total mAsset cap: ' + parseFloat(stats.assetcap).toLocaleString() + ' UST\ntotal liquidity: ' + parseFloat(stats.totalLiquidity).toLocaleString() + ' UST\ntotal value locked: ' + parseFloat(stats.totalValueLocked).toLocaleString() + ' UST\ncollateral-ratio: ' + (parseFloat(stats.cratio)).toLocaleString() + ' %';
-    body = body + linebreak + '<b>last 24h</b>\nusers: ' + parseFloat(stats.last24users).toLocaleString() + '\ntransactions: ' + parseFloat(stats.last24tx).toLocaleString() + '\nvolume total: ' + parseFloat(stats.last24totalvol).toLocaleString() + ' UST\nvolume MIR: ' + parseFloat(stats.last24mirvol).toLocaleString() + '\nfees payed: ' + parseFloat(stats.last24fee).toLocaleString() + ' UST\n24h volume / liquidity: ' + data.stats.volByLiqFactor + ' %';
+    body = body + linebreak + 'tot. mAsset cap: ' + parseFloat(stats.assetcap).toLocaleString() + ' UST\ntot. liquidity: ' + parseFloat(stats.totalLiquidity).toLocaleString() + ' UST\ntot. value locked: ' + parseFloat(stats.totalValueLocked).toLocaleString() + ' UST\ncollateral-ratio: ' + (parseFloat(stats.cratio)).toLocaleString() + ' %';
+    body = body + linebreak + '<b>last 24h</b>\nusers: ' + parseFloat(stats.last24users).toLocaleString() + '\ntransactions: ' + parseFloat(stats.last24tx).toLocaleString() + '\nvol. total: ' + parseFloat(stats.last24totalvol).toLocaleString() + ' UST\nvol. MIR: ' + parseFloat(stats.last24mirvol).toLocaleString() + '\nfees payed: ' + parseFloat(stats.last24fee).toLocaleString() + ' UST\n24h volume / liquidity: ' + data.stats.volByLiqFactor + ' %';
     text = headfinance + linebreak + body + linebreak + offtext;
   }
   return text;
