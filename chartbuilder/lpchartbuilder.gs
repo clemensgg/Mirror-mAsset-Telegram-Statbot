@@ -76,7 +76,7 @@ function buildLPChart(data,symbol,timeframe) {
   for (var i = 0; i < data.length; i++) {
     for (var f = 0; f < data[i].assets.length; f++) {
       if (data[i].timestamp != null && data[i].timestamp != undefined && data[i].timestamp != NaN && data[i].assets[f].symbol == symbol) {
-        d.push([data[i].timestamp,data[i].assets[f].apr,data[i].assets[f].liquidity/1000000,data[i].assets[f].last24volume/1000000]);
+        d.push([data[i].timestamp,data[i].assets[f].apr,data[i].assets[f].liquidity/1000000,data[i].assets[f].last24volume/1000000,data[i].stats.mirprice]);
       }
     }
   }
@@ -84,7 +84,8 @@ function buildLPChart(data,symbol,timeframe) {
   .addColumn(Charts.ColumnType.DATE, 'timestamp')
   .addColumn(Charts.ColumnType.NUMBER, '24h volume')
   .addColumn(Charts.ColumnType.NUMBER, 'Liquidity')
-  .addColumn(Charts.ColumnType.NUMBER, 'APR %');
+  .addColumn(Charts.ColumnType.NUMBER, 'APR %')
+  .addColumn(Charts.ColumnType.NUMBER, 'MIR price');
   
   var highestapr = 0;
   var lowestapr = d[0][1];
@@ -102,9 +103,10 @@ function buildLPChart(data,symbol,timeframe) {
     var apr = d[i][1];
     var liq = d[i][2];
     var vol = d[i][3];
+    var mir = d[i][4];
     var ts = new Date(d[i][0]);
     if (timeframe == '1d' && (thismoment - (d[i][0] - 3*60*60*1000)) <= oneday) {
-      datatable.addRow([ts,vol,liq,apr]);
+      datatable.addRow([ts,vol,liq,apr,mir]);
       if (vol > highestvol) {
         highestvol = vol;
       }
@@ -119,7 +121,7 @@ function buildLPChart(data,symbol,timeframe) {
       }
     }
     if (timeframe == '7d' && (thismoment - (d[i][0] - 3*60*60*1000)) <= sevendays) {
-      datatable.addRow([ts,vol,liq,apr]);
+      datatable.addRow([ts,vol,liq,apr,mir]);
       if (vol > highestvol) {
         highestvol = vol;
       }
@@ -146,8 +148,8 @@ function buildLPChart(data,symbol,timeframe) {
   var series = {
     0: {
       targetAxisIndex: 1,
-      type: 'area',
-      areaOpacity: 1
+      type: 'steppedArea',
+      areaOpacity: 0.4
     },
     1: {
       targetAxisIndex: 1,
@@ -160,6 +162,12 @@ function buildLPChart(data,symbol,timeframe) {
       curveType: 'function',
       lineDashStyle: [4, 4]
     },
+    3: {
+      targetAxisIndex: 2,
+      type: 'line',
+      curveType: 'function',
+      lineDashStyle: [4, 4]
+    }
   }
   
   var vaxes = {
@@ -194,7 +202,22 @@ function buildLPChart(data,symbol,timeframe) {
         count: 0
       },
       baselineColor: color.deepblue
-    }
+    },
+    2: {
+      textColor: color.orange,
+      format: '#.##',
+      textPosition: 'in',
+      gridlines: {
+        count: 0
+      },
+      minorGridlines: {
+        count: 0
+      },
+      baselineColor: color.deepblue,
+      gridlines: {
+        color: color.deepblue
+      }
+    } 
   }
   
   var haxes = [
@@ -215,7 +238,7 @@ function buildLPChart(data,symbol,timeframe) {
   .setTitle('mirror.finance - ' + symbol + ' - LP chart - ' + timeframe)
   .setDimensions(800, 500)
   .setBackgroundColor(color.deepblue)
-  .setColors([color.grey,color.white,color.sky])
+  .setColors([color.grey,color.white,color.sky,color.orange])
   .setTitleTextStyle(titlestyle)
   .setXAxisTitleTextStyle(xstyle)
   .setYAxisTitleTextStyle(ystyle)
@@ -230,11 +253,11 @@ function buildLPChart(data,symbol,timeframe) {
   var imageData = Utilities.base64Encode(chart.getAs('image/png').getBytes());
   var blob = Utilities.newBlob(Utilities.base64Decode(imageData), MimeType.JPEG, symbol + ' - LP chart - ' + timeframe);
   if (timeframe == '1d') {
-    drive1dLPcharts.createFile(blob);
+    drive1dcharts.createFile(blob);
     return true;
   }
   if (timeframe == '7d') {
-    drive7dLPcharts.createFile(blob);
+    drive7dcharts.createFile(blob);
     return true;
   }
 }
