@@ -48,7 +48,7 @@ function loadPic(chatid,cap,picstring) {
       method: "post",
       payload: {
         method: "sendPhoto",
-        photo: picstring,
+        photo: encodeURI(picstring),
         chat_id: String(chatid),
         caption: cap,
         parse_mode: "html"
@@ -63,7 +63,7 @@ function loadPicKey(chatid,cap,picstring,keyboard) {
       method: "post",
       payload: {
         method: "sendPhoto",
-        photo: picstring,
+        photo: encodeURI(picstring),
         chat_id: String(chatid),
         caption: cap,
         parse_mode: "html",
@@ -81,7 +81,8 @@ function chatActionTyping(chatid) {
         method: "sendChatAction",
         chat_id: chatid.toString(),
         action: "typing"
-      }
+      },
+      muteHttpExceptions: true
   }
   return data; 
 }
@@ -91,34 +92,69 @@ function keyboardMain(){
     inline_keyboard: [
       [
         {
-          text: "prices",
+          text: "mAsset prices",
           callback_data: "list_p"
         },
         {
-          text: "stats",
+          text: "mAsset stats",
           callback_data: "list_s"
         },
         {
-          text: "mir stats",
+          text: "platform stats",
           callback_data: "mirstats"
+        }
+      ],
+      [
+        {
+          text: "1d charts",
+          callback_data: "charts_1d"
+        },
+        {
+          text: "7d charts",
+          callback_data: "charts_7d"
         },
         {
           text: "info",
           callback_data: "info"
         }
+      ]
+    ],
+    resize_keyboard:true,
+    one_time_keyboard:true,
+    selective: true
+  }
+  return keyboard;
+}
+
+function keyboardCharts(timeframe){
+  var keyboard ={
+    inline_keyboard: [
+      [
+        {
+          text: "prices",
+          callback_data: "list_c" + timeframe.slice(0,1)
+        },
+        {
+          text: "stats (LP)",
+          callback_data: 'list_c' + timeframe.slice(0,1) + 'lp'
+        },
+        {
+          text: "mAssets TVL",
+          callback_data: "TVL_" + timeframe
+        }
       ],
       [
         {
-          text: "1d chart",
-          callback_data: "list_c1"
+          text: "GOV",
+          callback_data: "GOV_" + timeframe
         },
         {
-          text: "7d chart",
-          callback_data: "list_c7"
+          text: "last 24h",
+          callback_data: "LAST24_" + timeframe
         },
         {
-          text: "1d LP chart",
-          callback_data: "list_c1lp"
+          text: "< back",
+          callback_data: "back"
         }
       ]
     ],
