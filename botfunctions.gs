@@ -105,6 +105,10 @@ function bot_assetChartCallback(chatid,callbackdata) { //// callback only
     if (charturl != false) {
       data = loadPicKey(chatid,caption,charturl,keyboard);
     }
+    if (charturl == false) {
+      text = charterror;
+      data = loadMsgKey(chatid,text,keyboard);
+    }
   }
   return data;
 }
@@ -121,6 +125,7 @@ function bot_assetChartCommand(chatid,msgtext,chattype) { //// public + private
         data = loadMsgKey(chatid,text,keyboard);   
     }
     sendToTG(data);
+    return;
   }
   var symbol = normalizeSymbol(msgtext.split(' ')[1],all.symbols);
   var timeframe = false;
@@ -135,6 +140,7 @@ function bot_assetChartCommand(chatid,msgtext,chattype) { //// public + private
       data = loadMsgKey(chatid,text,keyboard);   
     }
     sendToTG(data);
+    return;
   }
   if (timeframe == false) {
     var text = charthint;
@@ -144,6 +150,7 @@ function bot_assetChartCommand(chatid,msgtext,chattype) { //// public + private
         data = loadMsgKey(chatid,text,keyboard);   
     }
     sendToTG(data);
+    return;
   }
   if (symbol != false && timeframe != false) {
     var method = 'P';
@@ -159,13 +166,44 @@ function bot_assetChartCommand(chatid,msgtext,chattype) { //// public + private
         var keyboard = keyboardMain();
         data = loadPicKey(chatid,caption,charturl,keyboard);        
       }
-      sendToTG(data); 
     }
+    if (charturl == false) {
+      text = charterror;
+      data = loadMsg(chatid,text);
+      if (chattype == 'private') {
+        var keyboard = keyboardMain();
+        data = loadMsgKey(chatid,text,keyboard);        
+      }
+    }
+    sendToTG(data); 
   }
   return true;
 }
 
-function bot_hint(chatid,method,chattype){ //// public + private
+function bot_getStatChart(chatid,method,timeframe,chattype) {
+  var data = chatActionTyping(chatid);
+  sendToTG(data);
+  var charturl = getChartUrl(method,'MIR',timeframe);
+  if (charturl != false) {
+    var data = loadPic(chatid,caption,charturl);
+    if (chattype == 'private') {
+      var keyboard = keyboardMain();
+      data = loadPicKey(chatid,caption,charturl,keyboard);        
+    }
+  }
+  if (charturl == false) {
+    text = charterror;
+    data = loadMsg(chatid,text);
+    if (chattype == 'private') {
+      var keyboard = keyboardMain();
+      data = loadMsgKey(chatid,text,keyboard);        
+    }
+  }
+  sendToTG(data); 
+  return true;
+}
+
+function bot_hint(chatid,method,chattype) { //// public + private
   if (method == 'price') {
     var text = pricehint;
   }
@@ -191,6 +229,14 @@ function bot_list(chatid,method) { //// callback only
   var symbols = getCache().symbols;
   var text = choosetext;
   var keyboard = keyboardList(method,symbols);
+  var data = loadMsgKey(chatid,text,keyboard);
+  sendToTG(data);
+  return true;
+}
+
+function bot_charts(chatid,timeframe) { //// callback only
+  var text = choosecharttext;
+  var keyboard = keyboardCharts(timeframe);
   var data = loadMsgKey(chatid,text,keyboard);
   sendToTG(data);
   return true;
