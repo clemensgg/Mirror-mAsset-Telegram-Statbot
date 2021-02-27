@@ -64,16 +64,46 @@ function formatPostRequest(payload) {
 }
 
 function getChartUrl(method,symbol,timeframe) {
+  var next = false;
   if (symbol != 'MIR') {
-    var file = DriveApp.getFilesByName(symbol + " - " + timeframe).next();
+    if (DriveApp.getFilesByName(symbol + " - " + timeframe).hasNext()) {
+      var file = DriveApp.getFilesByName(symbol + " - " + timeframe).next();
+      next = true;
+    }
   }
   if (method == 'LP') {
-    var file = DriveApp.getFilesByName(symbol + " - LP chart - " + timeframe).next();
+    if (DriveApp.getFilesByName(symbol + " - LP chart - " + timeframe).hasNext()) {
+      var file = DriveApp.getFilesByName(symbol + " - LP chart - " + timeframe).next();
+      next = true;
+    }
   }
-  var url = file.getUrl();
-  var fileid = url.replace('/view?usp=drivesdk','').replace('https://drive.google.com/file/d/','');
-  url = 'https://docs.google.com/uc?id=' + fileid;
-  return url;
+  if (method == 'TVL') {
+    if (DriveApp.getFilesByName('mirror.finance - mAssets TVL chart - ' + timeframe).hasNext()) {
+      var file = DriveApp.getFilesByName('mirror.finance - mAssets TVL chart - ' + timeframe).next();
+      next = true;
+    }
+  }
+  if (method == 'GOV') {
+    if (DriveApp.getFilesByName('mirror.finance - MIR gov. chart - ' + timeframe).hasNext()) {
+      var file = DriveApp.getFilesByName('mirror.finance - MIR gov. chart - ' + timeframe).next();
+      next = true;
+    }
+  }
+  if (method == 'LAST24') {
+    if (DriveApp.getFilesByName('mirror.finance - last 24h chart - ' + timeframe).hasNext()) {
+      var file = DriveApp.getFilesByName('mirror.finance - last 24h chart - ' + timeframe).next();
+      next = true;
+    }
+  }
+  if (next == true) {
+    var url = file.getUrl();
+    var fileid = url.replace('/view?usp=drivesdk','').replace('https://drive.google.com/file/d/','');
+    url = 'https://docs.google.com/uc?id=' + fileid;
+    return url;
+  }
+  if (next == false) {
+    return false;
+  }
 }
 
 function normalizeSymbol(symbol,symbols) { 
@@ -93,16 +123,6 @@ function normalizeTimeframe(timeframe) {
     return '7d';
   }
   return false;
-}
-
-function subDaysFromDate(date,d){
-  var result = new Date(date-d*(24*3600*1000));
-  return result;
-}
-
-function emptyTrash() {  
-  Drive.Files.emptyTrash();
-  return;
 }
 
 function notifyAdmin(method,msg) {
