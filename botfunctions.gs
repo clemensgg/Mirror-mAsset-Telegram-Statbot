@@ -6,7 +6,7 @@ function bot_info(chatid,chattype) { //// private only (public hint)
   }
   if (chattype != 'private') {
     var text = dmmehint;
-    var data = loadMsg(chatid,text,keyboard);
+    var data = loadMsg(chatid,text);
   }
   sendToTG(data);
   return true;
@@ -19,7 +19,7 @@ function bot_mirStats(chatid,chattype) { //// public + private
     var data = loadMsgKey(chatid,text,keyboard);
   }
   if (chattype != 'private') {
-    var data = loadMsg(chatid,text,keyboard);
+    var data = loadMsg(chatid,text);
   }
   sendToTG(data);
   return true;
@@ -39,7 +39,7 @@ function bot_allPricesStats(chatid,method,chattype) { //// private only (public 
   }
   if (chattype != 'private') {
     var text = dmmehint;
-    var data = loadMsg(chatid,text,keyboard);
+    var data = loadMsg(chatid,text);
   }
   sendToTG(data);
   return true;
@@ -101,11 +101,11 @@ function bot_assetChartCallback(chatid,callbackdata) { //// callback only
   var text = chartwarntext;
   data = loadMsgKey(chatid,text,keyboard);
   if (symbol != false) {
-    var charturl = getChartUrl(method,symbol,timeframe);
-    if (charturl != false) {
-      data = loadPicKey(chatid,caption,charturl,keyboard);
+    var chart = getChartBlob(method,symbol,timeframe);
+    if (chart != false) {
+      data = loadPicKey(chatid,caption,chart,keyboard);
     }
-    if (charturl == false) {
+    if (chart == false) {
       text = charterror;
       data = loadMsgKey(chatid,text,keyboard);
     }
@@ -159,23 +159,27 @@ function bot_assetChartCommand(chatid,msgtext,chattype) { //// public + private
         method = 'LP';
       }
     }
-    var charturl = getChartUrl(method,symbol,timeframe);
-    if (charturl != false) {
-      var data = loadPic(chatid,caption,charturl);
+    var chart = getChartBlob(method,symbol,timeframe);
+    if (chart != false) {
+      var data = loadPic(chatid,caption,chart);
       if (chattype == 'private') {
         var keyboard = keyboardMain();
-        data = loadPicKey(chatid,caption,charturl,keyboard);        
+        data = loadPicKey(chatid,caption,chart,keyboard);        
       }
+      var response = sendToTG(data);
+      if(response.getResponseCode().toString().includes('40')) {
+        bot_sryError(chatid,chattype);
+      } 
     }
-    if (charturl == false) {
+    if (chart == false) {
       text = charterror;
       data = loadMsg(chatid,text);
       if (chattype == 'private') {
         var keyboard = keyboardMain();
         data = loadMsgKey(chatid,text,keyboard);        
       }
+      sendToTG(data); 
     }
-    sendToTG(data); 
   }
   return true;
 }
@@ -183,21 +187,36 @@ function bot_assetChartCommand(chatid,msgtext,chattype) { //// public + private
 function bot_getStatChart(chatid,method,timeframe,chattype) {
   var data = chatActionTyping(chatid);
   sendToTG(data);
-  var charturl = getChartUrl(method,'MIR',timeframe);
-  if (charturl != false) {
-    var data = loadPic(chatid,caption,charturl);
+  var chart = getChartBlob(method,'MIR',timeframe);
+  if (chart != false) {
+    var data = loadPic(chatid,caption,chart);
     if (chattype == 'private') {
       var keyboard = keyboardMain();
-      data = loadPicKey(chatid,caption,charturl,keyboard);        
+      data = loadPicKey(chatid,caption,chart,keyboard);        
     }
+    var response = sendToTG(data);
+    if(response.getResponseCode().toString().includes('40')) {
+      bot_sryError(chatid,chattype);
+    } 
   }
-  if (charturl == false) {
+  if (chart == false) {
     text = charterror;
     data = loadMsg(chatid,text);
     if (chattype == 'private') {
       var keyboard = keyboardMain();
       data = loadMsgKey(chatid,text,keyboard);        
     }
+    sendToTG(data); 
+  }
+  return true;
+}
+
+function bot_sryError(chatid,chattype) {
+  var text = sryerror;
+  var data = loadMsg(chatid,text);
+  if (chattype == 'private') {
+    var keyboard = keyboardMain();
+    data = loadMsgKey(chatid,text,keyboard);        
   }
   sendToTG(data); 
   return true;
