@@ -125,16 +125,17 @@ function getMIRPC() {
 }
 
 function buildPriceChart(data,symbol,timeframe) {
+  var asset = false;
   for (var i = 0; i < data.assets.length; i++) {
     if (data.assets[i].symbol == symbol) {
-      data.asset = data.assets[i];
+      asset = data.assets[i];
     }
   }
-  if (data.asset != false) {
-    if (timeframe == '1d' && (data.asset.oracleHistory1d[0] == undefined || data.asset.priceHistory1d[0] == undefined)) {
+  if (asset != false) {
+    if (timeframe == '1d' && (asset.oracleHistory1d[0] == undefined || asset.priceHistory1d[0] == undefined)) {
       return false;
     }
-    if (timeframe == '7d' && (data.asset.oracleHistory7d[0] == undefined || data.asset.priceHistory7d[0] == undefined)) {
+    if (timeframe == '7d' && (asset.oracleHistory7d[0] == undefined || asset.priceHistory7d[0] == undefined)) {
       return false;
     }
     var datatable = Charts.newDataTable()
@@ -144,42 +145,93 @@ function buildPriceChart(data,symbol,timeframe) {
     .addColumn(Charts.ColumnType.NUMBER, 'premium %');
     
     var highestperc = 0;
-    var minoracle = 0;
+    var lowestperc = parseFloat((asset.price - asset.oraclePrice) / asset.oraclePrice);
+    var lowestprice = parseFloat(asset.price)*1000;
+    var lowestoracle = parseFloat(asset.oraclePrice)*1000;
+    var highestprice = 0;
+    var highestoracle = 0;
+    var highestp = 0;
+    var lowestp = 0;
     var d = "";
     var format = 'dd-MM-yy';
     if (timeframe == '1d') {
-      minoracle = data.asset.priceHistory1d[0].oraclePrice;
       format = 'dd-MM-yy HH:mm'
-      for (var i = 0; i < data.asset.priceHistory1d.length; i++) {
-        data.asset.priceHistory1d[i].premium = (data.asset.priceHistory1d[i].price - data.asset.priceHistory1d[i].oraclePrice);
-        data.asset.priceHistory1d[i].premiumPercentage = ((data.asset.priceHistory1d[i].premium / data.asset.priceHistory1d[i].oraclePrice));
-        d = new Date(data.asset.priceHistory1d[i].timestamp + 3*60*60*1000);
-        datatable.addRow([d,data.asset.priceHistory1d[i].price,data.asset.priceHistory1d[i].oraclePrice,data.asset.priceHistory1d[i].premiumPercentage]);
-        if (data.asset.priceHistory1d[i].premiumPercentage > highestperc) {
-          highestperc = data.asset.priceHistory1d[i].premiumPercentage;
+      for (var i = 0; i < asset.priceHistory1d.length; i++) {
+        var price = parseFloat(asset.priceHistory1d[i].price).toFixed(2)*1000;
+        var oracleprice = parseFloat(asset.priceHistory1d[i].oraclePrice).toFixed(2)*1000;
+        var premium =  price - oracleprice;
+        var perc = parseFloat(premium / oracleprice).toFixed(4)*1000;
+        d = new Date(asset.priceHistory1d[i].timestamp + 3*60*60*1000);
+        datatable.addRow([d,price/1000,oracleprice/1000,perc/1000]);
+        if (perc > highestperc) {
+          highestperc = perc;
         }
-        if (data.asset.priceHistory1d[i].oraclePrice < minoracle) {
-          minoracle = data.asset.priceHistory1d[i].oraclePrice;
+        if (perc < lowestperc) {
+          lowestperc = perc;
+        }
+        if (price > highestprice) {
+          highestprice = price;
+        }
+        if (price < lowestprice) {
+          lowestprice = price;
+        }
+        if (oracleprice > highestoracle) {
+          highestoracle = oracleprice;
+        }
+        if (oracleprice < lowestoracle) {
+          lowestoracle = oracleprice;
         }
       }
-    }
+    } 
     
     if (timeframe == '7d') {
-      minoracle = data.asset.priceHistory7d[0].oraclePrice;
-      for (var i = 0; i < data.asset.priceHistory7d.length; i++) {
-        data.asset.priceHistory7d[i].premium = (data.asset.priceHistory7d[i].price - data.asset.priceHistory7d[i].oraclePrice);
-        data.asset.priceHistory7d[i].premiumPercentage = ((data.asset.priceHistory7d[i].premium / data.asset.priceHistory7d[i].oraclePrice));
-        d = new Date(data.asset.priceHistory7d[i].timestamp + 3*60*60*1000);
-        datatable.addRow([d,data.asset.priceHistory7d[i].price,data.asset.priceHistory7d[i].oraclePrice,data.asset.priceHistory7d[i].premiumPercentage]);
-        if (data.asset.priceHistory7d[i].premiumPercentage > highestperc) {
-          highestperc = data.asset.priceHistory7d[i].premiumPercentage;
+      for (var i = 0; i < asset.priceHistory7d.length; i++) {
+        var price = parseFloat(asset.priceHistory7d[i].price).toFixed(2)*1000;
+        var oracleprice = parseFloat(asset.priceHistory7d[i].oraclePrice).toFixed(2)*1000;
+        var premium =  price - oracleprice;
+        var perc = parseFloat(premium / oracleprice).toFixed(4)*1000;
+        d = new Date(asset.priceHistory7d[i].timestamp + 3*60*60*1000);
+        datatable.addRow([d,price/1000,oracleprice/1000,perc/1000]);
+        if (perc > highestperc) {
+          highestperc = perc;
         }
-        if (data.asset.priceHistory7d[i].oraclePrice < minoracle) {
-          minoracle = data.asset.priceHistory7d[i].oraclePrice;
+        if (perc < lowestperc) {
+          lowestperc = perc;
+        }
+        if (price > highestprice) {
+          highestprice = price;
+        }
+        if (price < lowestprice) {
+          lowestprice = price;
+        }
+        if (oracleprice > highestoracle) {
+          highestoracle = oracleprice;
+        }
+        if (oracleprice < lowestoracle) {
+          lowestoracle = oracleprice;
         }
       }
     }
-    
+
+
+    if (highestprice >= highestoracle) {
+      highestp = highestprice/1000;
+    }
+    if (highestprice <= highestoracle) {
+      highestp = highestoracle/1000;
+    }
+    if (lowestprice <= lowestoracle) {
+      lowestp = lowestprice/1000;
+    }
+    if (lowestprice >= lowestoracle) {
+      lowestp = lowestoracle/1000;
+    }
+
+    highestperc = highestperc/1000;
+    lowestperc = lowestperc/1000;
+    var percrange = highestperc - lowestperc;
+    var prange = highestp - lowestp;
+
     var textStyleBuilder = Charts.newTextStyle().setColor('white').setFontSize(20);
     var textStyleBuilder2 = Charts.newTextStyle().setColor('white').setFontSize(16);
     var textStyleBuilder3 = Charts.newTextStyle().setColor('white').setFontSize(16);
@@ -197,7 +249,9 @@ function buildPriceChart(data,symbol,timeframe) {
       },
       2: {
         targetAxisIndex: 0,
-        lineDashStyle: [4, 4]
+        lineDashStyle: [4, 4],
+        type: 'area',
+        areaOpacity: 0.13,
       }
     };
     
@@ -208,16 +262,17 @@ function buildPriceChart(data,symbol,timeframe) {
           color: color.orange,
           italic: false
         },
-        gridlines: {
-          count: 0
-        },
         minorGridlines: {
           count: 0
         },
-        viewWindow: {
-          max: highestperc*2
+        gridlines: {
+          color: color.blue
         },
-        baselineColor: color.deepblue
+        viewWindow: {
+          max: highestperc+(3.2*percrange),
+          min: lowestperc-(0.05*percrange)
+        },
+        baselineColor: color.grey
       },
       {
         textStyle: {
@@ -230,10 +285,11 @@ function buildPriceChart(data,symbol,timeframe) {
         minorGridlines: {
           count: 0
         },
-        baselineColor: color.deepblue,
         viewWindow: {
-          min: minoracle - (minoracle/25)
-        }
+          max: highestp+(prange*0.05),
+          min: lowestp-(prange/2.5)
+        },
+        baselineColor: color.deepblue
       }
     ];
     
@@ -252,7 +308,7 @@ function buildPriceChart(data,symbol,timeframe) {
     ]
     
     var chart = Charts.newLineChart()
-    .setTitle('mirror.finance - ' + data.asset.symbol + ' - ' + timeframe)
+    .setTitle('mirror.finance - ' + asset.symbol + ' - ' + timeframe)
     .setCurveStyle(Charts.CurveStyle.NORMAL)
     .setDimensions(800, 500)
     .setBackgroundColor(color.deepblue)
@@ -269,12 +325,12 @@ function buildPriceChart(data,symbol,timeframe) {
     
     chart = chart.build();
     
-    var htmlOutput = HtmlService.createHtmlOutput().setTitle('mirror.finance - ' + data.asset.symbol + ' - ' + timeframe);
+    var htmlOutput = HtmlService.createHtmlOutput().setTitle('mirror.finance - ' + asset.symbol + ' - ' + timeframe);
     var imageData = Utilities.base64Encode(chart.getAs('image/png').getBytes());
     var imageUrl = "data:image/png;base64," + encodeURI(imageData);
     htmlOutput.append("Render chart server side: <br/>");
     htmlOutput.append("<img border=\"1\" src=\"" + imageUrl + "\">");
-    var blob = Utilities.newBlob(Utilities.base64Decode(imageData), MimeType.JPEG, data.asset.symbol + ' - ' + timeframe);
+    var blob = Utilities.newBlob(Utilities.base64Decode(imageData), MimeType.JPEG, asset.symbol + ' - ' + timeframe);
     if (timeframe == '1d') {
       drive1dcharts.createFile(blob);
       return true;
