@@ -43,12 +43,12 @@ function deleteMsg(msgid,chatid) {
   return true;
 }
 
-function loadPic(chatid,cap,picstring) {
+function loadPic(chatid,cap,pic) {
   var data = {
       method: "post",
       payload: {
         method: "sendPhoto",
-        photo: encodeURI(picstring),
+        photo: pic,
         chat_id: String(chatid),
         caption: cap,
         parse_mode: "html"
@@ -58,12 +58,12 @@ function loadPic(chatid,cap,picstring) {
   return data; 
 }
 
-function loadPicKey(chatid,cap,picstring,keyboard) {
+function loadPicKey(chatid,cap,pic,keyboard) {
   var data = {
       method: "post",
       payload: {
         method: "sendPhoto",
-        photo: encodeURI(picstring),
+        photo: pic,
         chat_id: String(chatid),
         caption: cap,
         parse_mode: "html",
