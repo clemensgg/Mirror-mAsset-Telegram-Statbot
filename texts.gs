@@ -8,11 +8,12 @@ var statshint = 'use <code>/s mAsset</code> to show statistics for a specific mA
 var charthint = 'use <code>/c mAsset timeframe</code> to print the chart for a specific mAsset <i>(timeframes: 1d, 7d)</i>';
 var chartwarntext = '<i>chart not available at the moment. please try later</i>'
 var dmmehint = '<i>dm me for full functionality</i> @mirror_statbot';
-var infotext = '<b>MIRROR STATBOT by the Mirror community</b>\n\ncommands:\n<code>/stats</code> - mirror.finance statistics\n<code>/p mAsset</code> - prices for specific mAsset\n<code>/p all</code> - prices for all mAssets\n<code>/s mAsset</code> - swap statistics (mAsset)\n<code>/s all</code> - swap statistics (all)\n<code>/c mAsset timeframe</code> - price chart\n<code>/c mAsset timeframe LP</code> - LP chart\n<code>/c TVL timeframe</code> - TVL chart\n<code>/c GOV timeframe</code> - governance chart\n<code>/c LAST24 timeframe</code> - last 24h chart\n<code>/info</code> - bot info\n\n<i>mAsset input is non case-sensitive (use tickers like mETH, mAAPL, mtsla...) / timeframes: 1d, 7d</i>\n\nadmin: @clemensg' + linebreak + 'participate: ' + mirrorurl;
+var infotext = '<b>MIRROR STATBOT by the Mirror community</b>\n\ncommands:\n<code>/stats</code> - mirror.finance statistics\n<code>/p mAsset</code> - prices for specific mAsset\n<code>/p all</code> - prices for all mAssets\n<code>/s mAsset</code> - swap statistics (mAsset)\n<code>/s all</code> - swap statistics (all)\n<code>/c mAsset timeframe</code> - price chart\n<code>/c mAsset timeframe LP</code> - LP chart\n<code>/c TVL timeframe</code> - TVL chart\n<code>/c GOV timeframe</code> - governance chart\n<code>/c LAST24 timeframe</code> - last24h chart\n<code>/info</code> - bot info\n\n<i>mAsset input is non case-sensitive (use tickers like mETH, mAAPL, mtsla...) - timeframes: 1d, 7d</i>\n\nadmin: @clemensg' + linebreak + 'participate: ' + mirrorurl;
 var choosetext = '<i>choose mAsset</i>';
 var choosecharttext = '<i>choose chart layout</i>';
 var caption = bothandle;
 var charterror = '<i>sorry, this chart is currently not available, please try again in a few minutes.</i>';
+var sryerror = '<i>sorry, an error occurred, please try again later. error-report sent.</i>';
 var offtext = '📱 <a href="https://mirrorwallet.com/">buy & trade mAssets on your mobile</a>';
 
 function generateMirrorStatsText() {
