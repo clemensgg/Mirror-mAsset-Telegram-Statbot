@@ -16,7 +16,7 @@ function doPost(e) {
 }
 
 function receiveCallback(update) {
-  
+
   var callback = update.callback_query;
   var chattype = callback.message.chat.type;
   var msgid = callback.message.message_id;
@@ -71,7 +71,10 @@ function receiveCallback(update) {
   if (callbackdata.slice(0,1) == 'c') {
     var data = bot_assetChartCallback(chatid,callbackdata)
     deleteMsg(msgid,chatid);
-    sendToTG(data);
+    var response = sendToTG(data);
+    if(response.getResponseCode().toString().includes('40')) {
+      bot_sryError(chatid,chattype);
+    } 
     return;
   }
   if (callbackdata == 'back') {
