@@ -50,6 +50,9 @@ function deleteWebHook() {
 //// FETCH TG API
 function sendToTG(data) { 
   var response = (UrlFetchApp.fetch(tgurl + '/', data));
+  if (response.getResponseCode().toString().includes('40') && response.getContentText().includes('message can') == false) {
+    notifyAdmin('TG API ERROR',response.getContentText() + '\n\n' + JSON.stringify(data.payload));
+  }
   return response; 
 }
 
@@ -63,7 +66,7 @@ function formatPostRequest(payload) {
   return options;
 }
 
-function getChartUrl(method,symbol,timeframe) {
+function getChartBlob(method,symbol,timeframe) {
   var next = false;
   if (symbol != 'MIR') {
     if (DriveApp.getFilesByName(symbol + " - " + timeframe).hasNext()) {
@@ -96,10 +99,11 @@ function getChartUrl(method,symbol,timeframe) {
     }
   }
   if (next == true) {
-    var url = file.getUrl();
-    var fileid = url.replace('/view?usp=drivesdk','').replace('https://drive.google.com/file/d/','');
-    url = 'https://docs.google.com/uc?id=' + fileid;
-    return url;
+    var blob = file.getBlob();
+   // var url = file.getUrl();
+   // var fileid = url.replace('/view?usp=drivesdk','').replace('https://drive.google.com/file/d/','');
+   // url = 'https://docs.google.com/uc?id=' + fileid;
+    return blob;
   }
   if (next == false) {
     return false;
@@ -126,5 +130,10 @@ function normalizeTimeframe(timeframe) {
 }
 
 function notifyAdmin(method,msg) {
-  GmailApp.sendEmail(adminmail,method,msg);
+  Logger.log(msg);
+  var text = "<b>ERROR NOTIFICATION</b>\n\n<code>" + method + '</code>\n\n' + msg + '\n\n@clemensg';
+  var data = loadMsg(adminid,text);
+  sendToTG(data);
+  //GmailApp.sendEmail(adminmail,method,msg);
+  return;
 }
