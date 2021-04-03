@@ -38,7 +38,7 @@ function receiveCallback(update) {
     bot_allPricesStats(chatid,callbackdata.split('_')[1],chattype);
     return;
   }
-  if (callbackdata == 'list_p' || callbackdata == 'list_s' || callbackdata == 'list_c1' || callbackdata == 'list_c7' || callbackdata == 'list_c1lp' || callbackdata == 'list_c7lp') {
+  if (callbackdata == 'list_p' || callbackdata == 'list_s' || callbackdata == 'list_c1' || callbackdata == 'list_c7' || callbackdata == 'list_c3' || callbackdata == 'list_c1lp' || callbackdata == 'list_c7lp' || callbackdata == 'list_c3lp') {
     deleteMsg(msgid,chatid);
     bot_list(chatid,callbackdata.split('_')[1]);
     return;
@@ -138,7 +138,7 @@ function receiveBotCommand(update) {
     bot_assetPricesStatsCommand(chatid,msgtext.split(' ')[1],'p',chattype);
     return;
   }
-  if (msgtext.toLowerCase().includes('/c mir ') || msgtext.toLowerCase().includes('/c@mirror_statbot mir ') || msgtext.toLowerCase().includes('/chart mir ') || msgtext.toLowerCase().includes('/chart@mirror_statbot mir ') || msgtext.toLowerCase().includes('/c gov ') || msgtext.toLowerCase().includes('/c@mirror_statbot gov ') || msgtext.toLowerCase().includes('/chart gov ') || msgtext.toLowerCase().includes('/chart@mirror_statbot gov ')) {
+  if (msgtext.toLowerCase().includes('/c gov ') || msgtext.toLowerCase().includes('/c@mirror_statbot gov ') || msgtext.toLowerCase().includes('/chart gov ') || msgtext.toLowerCase().includes('/chart@mirror_statbot gov ')) {
     if (chartcommand == false) {
       chartcommand = true;
       var timeframe = normalizeTimeframe(msgtext.toLowerCase().split(' ')[2]);
