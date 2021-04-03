@@ -15,6 +15,10 @@ function generateALLSTATCharts(data) {
   if (next2) {
       var id2 = DriveApp.getFilesByName('mirror.finance - MIR gov. chart - 7d').next().getId();
   }
+  var next3 = DriveApp.getFilesByName('mirror.finance - MIR gov. chart - 30d').hasNext();
+  if (next3) {
+      var id3 = DriveApp.getFilesByName('mirror.finance - MIR gov. chart - 30d').next().getId();
+  }
   buildGOVChart(data,'1d');
   if (next) {
       DriveApp.getFileById(id1).setTrashed(true);
@@ -22,6 +26,10 @@ function generateALLSTATCharts(data) {
   buildGOVChart(data,'7d');
   if (next2) {
       DriveApp.getFileById(id2).setTrashed(true);
+  }
+  buildGOVChart(data,'30d');
+  if (next3) {
+      DriveApp.getFileById(id3).setTrashed(true);
   }
   next = DriveApp.getFilesByName('mirror.finance - mAssets TVL chart - 1d').hasNext();
   if (next) {
@@ -31,6 +39,10 @@ function generateALLSTATCharts(data) {
   if (next2) {
       id2 = DriveApp.getFilesByName('mirror.finance - mAssets TVL chart - 7d').next().getId();
   }
+  next3 = DriveApp.getFilesByName('mirror.finance - mAssets TVL chart - 30d').hasNext();
+  if (next3) {
+      id3 = DriveApp.getFilesByName('mirror.finance - mAssets TVL chart - 30d').next().getId();
+  }
   buildTVLChart(data,'1d');
   if (next) {
       DriveApp.getFileById(id1).setTrashed(true);
@@ -38,6 +50,10 @@ function generateALLSTATCharts(data) {
   buildTVLChart(data,'7d');
   if (next2) {
       DriveApp.getFileById(id2).setTrashed(true);
+  } 
+  buildTVLChart(data,'30d');
+  if (next3) {
+      DriveApp.getFileById(id3).setTrashed(true);
   } 
   next = DriveApp.getFilesByName('mirror.finance - last 24h chart - 1d').hasNext();
   if (next) {
@@ -47,6 +63,10 @@ function generateALLSTATCharts(data) {
   if (next2) {
       id2 = DriveApp.getFilesByName('mirror.finance - last 24h chart - 7d').next().getId();
   }
+  next3 = DriveApp.getFilesByName('mirror.finance - last 24h chart - 30d').hasNext();
+  if (next3) {
+      id3 = DriveApp.getFilesByName('mirror.finance - last 24h chart - 30d').next().getId();
+  }
   buildLAST24Chart(data,'1d');
   if (next) {
       DriveApp.getFileById(id1).setTrashed(true);
@@ -54,7 +74,11 @@ function generateALLSTATCharts(data) {
   buildLAST24Chart(data,'7d');
   if (next2) {
       DriveApp.getFileById(id2).setTrashed(true);
-  }  
+  } 
+  buildLAST24Chart(data,'30d');
+  if (next3) {
+      DriveApp.getFileById(id3).setTrashed(true);
+  }   
   return true; 
 }
 
@@ -62,6 +86,7 @@ function generateAllLPCharts(data) {
   for (var i = 0; i < data[0].assets.length; i++) {
     var next = DriveApp.getFilesByName(data[0].assets[i].symbol + " - LP chart - 1d").hasNext();
     var next2 = DriveApp.getFilesByName(data[0].assets[i].symbol + " - LP chart - 7d").hasNext();
+    var next3 = DriveApp.getFilesByName(data[0].assets[i].symbol + " - LP chart - 30d").hasNext();
     if (next) {
       var id1 = DriveApp.getFilesByName(data[0].assets[i].symbol + " - LP chart - 1d").next().getId();
     }
@@ -76,6 +101,13 @@ function generateAllLPCharts(data) {
     if (next2) {
       DriveApp.getFileById(id2).setTrashed(true);
     }
+    if (next3) {
+      var id3 = DriveApp.getFilesByName(data[0].assets[i].symbol + " - LP chart - 30d").next().getId();
+    }
+    buildLPChart(data,data[0].assets[i].symbol,'30d');
+    if (next3) {
+      DriveApp.getFileById(id3).setTrashed(true);
+    }
   }
   return
 }
@@ -83,49 +115,52 @@ function generateAllLPCharts(data) {
 function getAllSheetData() {
   var data = sheet.getRange(1,1,sheet.getLastRow(),sheet.getLastColumn()).getValues();
   var result = [];
+  var index = 0;
   for (var i = 0; i < data.length; i++) {
-    result.push({
-      timestamp: (data[i][0]).getTime() + 3*60*60*1000,
-      stats: {
-        assetcap: data[i][1],
-        totalValueLocked: data[i][2],
-        cratio: data[i][3],
-        mirSupplyCirculating: data[i][4],
-        mirSupplyTotal: data[i][5],
-        govAPR: data[i][6],
-        govAPY: data[i][7],
-        last24tx: data[i][8],
-        last24totalvol: data[i][9],
-        last24fee: data[i][10],
-        last24mirvol: data[i][11],
-        last24users: data[i][12],
-        totalLiquidity: data[i][13],
-        volByLiqFactor: data[i][14],
-        mirStaking: data[i][15],
-        mirprice: 0,
-        mirStakingRatio: (data[i][15] / data[i][4]).toFixed(4)
-      },
-      assets: []
-    });
-    var f = 16;
-    while (data[i][f] != undefined && data[i][f] != null && data[i][f] != NaN) {
-      result[i].assets.push({
-        symbol: data[i][f].split('_')[0],
-        price: parseFloat(data[i][f].split('_')[1]),
-        oraclePrice: parseFloat(data[i][f+1].split('_')[1]),
-        last24volume: parseFloat(data[i][f+2].split('_')[1]),
-        liquidity: parseFloat(data[i][f+3].split('_')[1]),
-        apr: parseFloat(data[i][f+4].split('_')[1]),
-        apy: parseFloat(data[i][f+5].split('_')[1])
+    if (data[i][0] != NaN && data[i][0] != undefined && data[i][0] != '' && data[i][0] != null) {
+      result.push({
+        timestamp: (data[i][0]).getTime() + 3*60*60*1000,
+        stats: {
+          assetcap: data[i][1],
+          totalValueLocked: data[i][2],
+          cratio: data[i][3],
+          mirSupplyCirculating: data[i][4],
+          mirSupplyTotal: data[i][5],
+          govAPR: data[i][6],
+          govAPY: data[i][7],
+          last24tx: data[i][8],
+          last24totalvol: data[i][9],
+          last24fee: data[i][10],
+          last24mirvol: data[i][11],
+          last24users: data[i][12],
+          totalLiquidity: data[i][13],
+          volByLiqFactor: data[i][14],
+          mirStaking: data[i][15],
+          mirprice: 0,
+          mirStakingRatio: (data[i][15] / data[i][4]).toFixed(4)
+        },
+        assets: []
       });
-      if (data[i][f].split('_')[0] == 'MIR' && result[i].stats.mirprice == 0) {
-        result[i].stats.mirprice = parseFloat(data[i][f].split('_')[1]);
-        result[i].stats.mirvol = parseFloat(data[i][f+2].split('_')[1]);
+      var f = 16;
+      while (data[i][f] != undefined && data[i][f] != null && data[i][f] != NaN && data[i][f] != '') {
+        result[index].assets.push({
+          symbol: data[i][f].split('_')[0],
+          price: parseFloat(data[i][f].split('_')[1]),
+          oraclePrice: parseFloat(data[i][f+1].split('_')[1]),
+          last24volume: parseFloat(data[i][f+2].split('_')[1]),
+          liquidity: parseFloat(data[i][f+3].split('_')[1]),
+          apr: parseFloat(data[i][f+4].split('_')[1]),
+          apy: parseFloat(data[i][f+5].split('_')[1])
+        });
+        if (data[i][f].split('_')[0] == 'MIR' && result[index].stats.mirprice == 0) {
+          result[index].stats.mirprice = parseFloat(data[i][f].split('_')[1]);
+          result[index].stats.mirvol = parseFloat(data[i][f+2].split('_')[1]);
+        }
+        f = f + 6;
       }
-      f = f + 6;
+      index++;
     }
   }
-
   return result;
 }
 
@@ -141,8 +176,6 @@ function isFloat(n){
 function isInt(n){
     return Number(n) === n && n % 1 === 0;
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////
 
 function buildLPChart(data,symbol,timeframe) {
   var d = [];
@@ -170,6 +203,10 @@ function buildLPChart(data,symbol,timeframe) {
     tf = 48;
     format = 'dd-MM-yy';
   }
+  if (timeframe == '30d') {
+    tf = 192;
+    format = 'dd-MM-yy';
+  }
   highestliq = d[0][2];
   highestvol = d[0][3];
   for (var i = 0; i < d.length; i = i+tf) {
@@ -194,6 +231,21 @@ function buildLPChart(data,symbol,timeframe) {
       }
     }
     if (timeframe == '7d' && (thismoment - (d[i][0] - 3*60*60*1000)) <= sevendays) {
+      datatable.addRow([ts,vol,liq,apr,mir]);
+      if (vol > highestvol) {
+        highestvol = vol;
+      }
+      if (liq > highestliq) {
+        highestliq = liq;
+      }
+      if (apr > highestapr) {
+        highestapr = apr;
+      }
+      if (apr < lowestapr) {
+        lowestapr = apr;
+      }
+    }
+    if (timeframe == '30d' && (thismoment - (d[i][0] - 3*60*60*1000)) <= thirtydays) {
       datatable.addRow([ts,vol,liq,apr,mir]);
       if (vol > highestvol) {
         highestvol = vol;
@@ -333,9 +385,11 @@ function buildLPChart(data,symbol,timeframe) {
     drive7dcharts.createFile(blob);
     return true;
   }
+  if (timeframe == '30d') {
+    drive30dcharts.createFile(blob);
+    return true;
+  }
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////
 
 // totalValueLocked + cratio + [last24htotalvol]
 
@@ -361,6 +415,10 @@ function buildTVLChart(data,timeframe) { // totalValueLocked + cratio + last24ht
   var format = 'dd-MM-yy HH:mm'
   if (timeframe == '7d') {
     tf = 48;
+    format = 'dd-MM-yy';
+  }
+  if (timeframe == '30d') {
+    tf = 192;
     format = 'dd-MM-yy';
   }
   for (var i = 0; i < d.length; i = i+tf) {
@@ -389,6 +447,26 @@ function buildTVLChart(data,timeframe) { // totalValueLocked + cratio + last24ht
       }
     }
     if (timeframe == '7d' && (thismoment - (d[i][0] - 3*60*60*1000)) <= sevendays) {
+      if (ts != NaN && vol != NaN && tvl != NaN && cr != NaN) {
+        datatable.addRow([ts,vol,tvl,cr]);
+        if (cr > highestcr) {
+          highestcr = cr;
+        }
+        if (cr < lowestcr) {
+          lowestcr = cr;
+        }
+        if (ts < last) {
+          last = ts;
+        }
+        if (vol < lowestvol) {
+          lowestvol = vol;
+        }
+        if (vol > highestvol) {
+          highestvol = vol;
+        }
+      }
+    }
+    if (timeframe == '30d' && (thismoment - (d[i][0] - 3*60*60*1000)) <= thirtydays) {
       if (ts != NaN && vol != NaN && tvl != NaN && cr != NaN) {
         datatable.addRow([ts,vol,tvl,cr]);
         if (cr > highestcr) {
@@ -483,7 +561,7 @@ function buildTVLChart(data,timeframe) { // totalValueLocked + cratio + last24ht
       },
       baselineColor: color.deepblue,
       viewWindow: {
-        max: highestvol*2,
+        max: highestvol*3,
         min: 0
       },
       ticks: [0,(highestvol/2).toFixed(0),highestvol],
@@ -534,9 +612,11 @@ function buildTVLChart(data,timeframe) { // totalValueLocked + cratio + last24ht
     statcharts7d.createFile(blob);
     return true;
   }
+  if (timeframe == '30d') {
+    statcharts30d.createFile(blob);
+    return true;
+  }
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////
 
 // govAPY + mirLockedRatio + mirPrice + [mirVol]
 
@@ -564,11 +644,17 @@ function buildGOVChart(data,timeframe) {
   var loweststaking = d[0][2];
   var highestvol = 0;
   var lowestvol = d[0][4];
+  var highestwindow = 0;
+  var lowestwindow = lowestapy;
   var tf = 12;
   var last = 0;
   var format = 'dd-MM-yy HH:mm'
   if (timeframe == '7d') {
     tf = 48;
+    format = 'dd-MM-yy';
+  }
+  if (timeframe == '30d') {
+    tf = 192;
     format = 'dd-MM-yy';
   }
   for (var i = 0; i < d.length; i = i+tf) {
@@ -629,8 +715,46 @@ function buildGOVChart(data,timeframe) {
         }
       }
     }
+    if (timeframe == '30d' && (thismoment - (d[i][0] - 3*60*60*1000)) <= thirtydays) {
+      if (staking != 0 && apy != NaN) {
+        datatable.addRow([ts,vol,mirprice,staking,apy]);
+        if (apy > highestapy) {
+          highestapy = apy;
+        }
+        if (apy < lowestapy) {
+          lowestapy = apy;
+        }
+        if (ts < last) {
+          last = ts;
+        }
+        if (staking < loweststaking) {
+          loweststaking = staking;
+        }
+        if (staking > higheststaking) {
+          higheststaking = staking;
+        }
+        if (vol < lowestvol) {
+          lowestvol = vol;
+        }
+        if (vol > highestvol) {
+          highestvol = vol;
+        }
+      }
+    }
   }
-   
+
+  if (highestapy > higheststaking) {
+    highestwindow = highestapy;
+  }
+  if (highestapy < higheststaking) {
+    highestwindow = higheststaking;
+  }
+  if (lowestapy < loweststaking) {
+    lowestwindow = lowestapy;
+  }
+  if (lowestapy > loweststaking) {
+    lowestwindow = loweststaking;
+  }
   
   var textStyleBuilder = Charts.newTextStyle().setColor('white').setFontSize(20);
   var textStyleBuilder2 = Charts.newTextStyle().setColor('white').setFontSize(16);
@@ -680,8 +804,8 @@ function buildGOVChart(data,timeframe) {
         count: 0
       },
       viewWindow: {
-        max: higheststaking*1.02,
-        min: lowestapy*0.98
+        max: highestwindow*1.04,
+        min: lowestwindow*0.96
       },
       baselineColor: color.deepblue
     },
@@ -710,7 +834,7 @@ function buildGOVChart(data,timeframe) {
       },
       baselineColor: color.deepblue,
       viewWindow: {
-        max: highestvol*2,
+        max: highestvol*3,
         min: 0
       },
       ticks: [0,(highestvol/2).toFixed(0),highestvol],
@@ -760,9 +884,11 @@ function buildGOVChart(data,timeframe) {
     statcharts7d.createFile(blob);
     return true;
   }
+  if (timeframe == '30d') {
+    statcharts30d.createFile(blob);
+    return true;
+  }
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////
 
 // liquidity + volByLiqFactor + last24htotalvol + [last24tx]
 
@@ -789,6 +915,10 @@ function buildLAST24Chart(data,timeframe) {
     tf = 48;
     format = 'dd-MM-yy';
   }
+  if (timeframe == '30d') {
+    tf = 192;
+    format = 'dd-MM-yy';
+  }
   for (var i = 0; i < d.length; i = i+tf) {
     var vol = d[i][2];
     var volbyliq = d[i][3];
@@ -812,6 +942,23 @@ function buildLAST24Chart(data,timeframe) {
       }
     }
     if (timeframe == '7d' && (thismoment - (d[i][0] - 3*60*60*1000)) <= sevendays) {
+      if (ts != NaN && (isFloat(volbyliq) || isInt(volbyliq)) && isInt(tx)) {
+        datatable.addRow([ts,tx,vol,volbyliq]);
+        if (tx > highesttx) {
+          highesttx = tx;
+        }
+        if (tx < lowesttx) {
+          lowesttx = tx;
+        }
+        if (volbyliq < lowestvolbyliq) {
+          lowestvolbyliq = volbyliq;
+        }
+        if (volbyliq > highestvolbyliq) {
+          highestvolbyliq = volbyliq;
+        }
+      }
+    }
+    if (timeframe == '30d' && (thismoment - (d[i][0] - 3*60*60*1000)) <= thirtydays) {
       if (ts != NaN && (isFloat(volbyliq) || isInt(volbyliq)) && isInt(tx)) {
         datatable.addRow([ts,tx,vol,volbyliq]);
         if (tx > highesttx) {
@@ -903,7 +1050,7 @@ function buildLAST24Chart(data,timeframe) {
         color: color.deepblue
       },
       viewWindow: {
-        max: highesttx*2.5,
+        max: highesttx*3,
         min: 0
       },
       baselineColor: color.deepblue
@@ -949,6 +1096,10 @@ function buildLAST24Chart(data,timeframe) {
   }
   if (timeframe == '7d') {
     statcharts7d.createFile(blob);
+    return true;
+  }
+  if (timeframe == '30d') {
+    statcharts30d.createFile(blob);
     return true;
   }
 }
