@@ -59,7 +59,7 @@ function bot_assetPricesStatsCallback(chatid,method,asset) { //// callback only
 }
 
 function bot_assetPricesStatsCommand(chatid,userinput,method,chattype) { //// public + private
-  var data = getAllData();
+  var data = getCache();
     data.usersymbol = normalizeSymbol(userinput,data.symbols)
     if (data.usersymbol == false) {
       var text = tickerhint + "<i> » " + userinput + " « please check your spelling</i>";
@@ -69,6 +69,7 @@ function bot_assetPricesStatsCommand(chatid,userinput,method,chattype) { //// pu
         data = loadMsgKey(chatid,text,keyboard);
       }
       sendToTG(data);
+      return;
     }
     if (data.usersymbol != false) {
       if (method == 's') {
@@ -83,6 +84,7 @@ function bot_assetPricesStatsCommand(chatid,userinput,method,chattype) { //// pu
         data = loadMsgKey(chatid,text,keyboard);
       }
       sendToTG(data);
+      return;
     }
     return;
 }
@@ -90,13 +92,16 @@ function bot_assetPricesStatsCommand(chatid,userinput,method,chattype) { //// pu
 function bot_assetChartCallback(chatid,callbackdata) { //// callback only
   var data = chatActionTyping(chatid);
   sendToTG(data);
-  method = 'P';
+  method = 'PRICE';
   if (callbackdata.includes('lp')) {
     method = 'LP';
   }
   var all = getCache();
   var symbol = normalizeSymbol(callbackdata.split('_')[1],all.symbols);
   var timeframe = normalizeTimeframe(callbackdata.slice(1,2));
+  if (timeframe == 3) { 
+    timeframe = 30;
+  }
   var keyboard = keyboardMain();
   var text = chartwarntext;
   data = loadMsgKey(chatid,text,keyboard);
@@ -153,7 +158,7 @@ function bot_assetChartCommand(chatid,msgtext,chattype) { //// public + private
     return;
   }
   if (symbol != false && timeframe != false) {
-    var method = 'P';
+    var method = 'PRICE';
     if (msgtext.split(' ')[3] != undefined && msgtext.split(' ')[3] != null && msgtext.split(' ')[3] != NaN) {
       if (msgtext.split(' ')[3].toLowerCase() == 'lp') {
         method = 'LP';
@@ -169,6 +174,7 @@ function bot_assetChartCommand(chatid,msgtext,chattype) { //// public + private
       var response = sendToTG(data);
       if(response.getResponseCode().toString().includes('40')) {
         bot_sryError(chatid,chattype);
+        return;
       } 
     }
     if (chart == false) {
@@ -219,6 +225,19 @@ function bot_sryError(chatid,chattype) {
     data = loadMsgKey(chatid,text,keyboard);        
   }
   sendToTG(data); 
+  return true;
+}
+
+function bot_liveChartNotAvailable(chatid,chattype) { //// public + private
+  var text = livecharterror;
+  if (chattype == 'private') {
+    var keyboard = keyboardMain();
+    var data = loadMsgKey(chatid,text,keyboard);
+  }
+  if (chattype != 'private') {
+    var data = loadMsg(chatid,text);
+  }
+  sendToTG(data);
   return true;
 }
 
