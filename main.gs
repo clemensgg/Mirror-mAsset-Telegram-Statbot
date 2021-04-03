@@ -47,11 +47,23 @@ function deleteWebHook() {
   Logger.log(response2.getContentText());
 }
 
+//// GET BOT UPDATES
+function getUpdates() {
+  var url = tgurl + "/getUpdates?offset=503287100";
+
+  var response1 = UrlFetchApp.fetch(url);
+  Logger.log(response1.getContentText());
+  var url2 = tgurl + "/getWebhookInfo";
+  var response2 = UrlFetchApp.fetch(url2);
+  Logger.log(response2.getContentText());
+}
+
 //// FETCH TG API
 function sendToTG(data) { 
   var response = (UrlFetchApp.fetch(tgurl + '/', data));
-  if (response.getResponseCode().toString().includes('40') && response.getContentText().includes('message can') == false) {
-    notifyAdmin('TG API ERROR',response.getContentText() + '\n\n' + JSON.stringify(data.payload));
+  var responsetext = response.getContentText();
+  if (response.getResponseCode().toString().includes('40') && responsetext.includes('message can') == false && responsetext.includes('message to delete not found') == false) {
+    notifyAdmin('TG API ERROR',responsetext + '\n\n' + JSON.stringify(data.payload));
   }
   return response; 
 }
@@ -67,11 +79,21 @@ function formatPostRequest(payload) {
 }
 
 function getChartBlob(method,symbol,timeframe) {
+  if (timeframe.toString().includes('3')) {
+    timeframe = '30d'
+  }
   var next = false;
-  if (symbol != 'MIR') {
-    if (DriveApp.getFilesByName(symbol + " - " + timeframe).hasNext()) {
-      var file = DriveApp.getFilesByName(symbol + " - " + timeframe).next();
-      next = true;
+  if (method == 'PRICE') {
+    var livechart = getLivePriceChart(symbol,timeframe);
+    if (livechart != false) {
+      return livechart;
+    }
+    if (livechart == false) {
+      //bot_liveChartNotAvailable(chatid,chattype);
+      if (DriveApp.getFilesByName(symbol + " - " + timeframe).hasNext()) {
+        var file = DriveApp.getFilesByName(symbol + " - " + timeframe).next();
+        next = true;
+      }
     }
   }
   if (method == 'LP') {
@@ -126,7 +148,26 @@ function normalizeTimeframe(timeframe) {
   if (timeframe.toString().includes('7')) {
     return '7d';
   }
+  if (timeframe.toString().includes('3')) {
+    return '30d';
+  }
   return false;
+}
+
+function subDaysFromDate(date, d) {
+  var result = new Date(date - d * (24 * 3600 * 1000));
+  return result
+}
+
+function getTrendPrefix(change) {
+  var prefix = '';
+  if (change.toString().slice(0,1) == '-') {
+    return prefix;
+  }
+  if (change.toString().slice(0,1) != '-') {
+    prefix = '+';
+    return prefix;
+  }
 }
 
 function notifyAdmin(method,msg) {
