@@ -1,14 +1,14 @@
 function generatePriceCharts() { //// autotrigger 5min / whole chart build takes ~3min
-  var data = getAllPriceChartData();
-  generateAllPriceCharts(data);
-  emptyTrash();
+  generate1dCharts(data);
+  generate7dCharts(data);
+  generate30dCharts(data);
   return;
 }
 
-function generateAllPriceCharts(data) {
+function generate1dCharts(data) {
+  var data = getAllPriceChartData();
   for (var i = 0; i < data.assets.length; i++) {
     var next = DriveApp.getFilesByName(data.assets[i].symbol + " - 1d").hasNext();
-    var next2 = DriveApp.getFilesByName(data.assets[i].symbol + " - 7d").hasNext();
     if (next) {
       var id1 = DriveApp.getFilesByName(data.assets[i].symbol + " - 1d").next().getId();
     }
@@ -16,6 +16,15 @@ function generateAllPriceCharts(data) {
     if (next) {
       DriveApp.getFileById(id1).setTrashed(true);
     }
+  }
+  emptyTrash();
+  return
+}
+
+function generate7dCharts(data) {
+  var data = getAllPriceChartData();
+  for (var i = 0; i < data.assets.length; i++) {
+    var next2 = DriveApp.getFilesByName(data.assets[i].symbol + " - 7d").hasNext();
     if (next2) {
       var id2 = DriveApp.getFilesByName(data.assets[i].symbol + " - 7d").next().getId();
     }
@@ -24,6 +33,23 @@ function generateAllPriceCharts(data) {
       DriveApp.getFileById(id2).setTrashed(true);
     }
   }
+  emptyTrash();
+  return
+}
+
+function generate30dCharts(data) {
+  var data = getAllPriceChartData();
+  for (var i = 0; i < data.assets.length; i++) {
+    var next3 = DriveApp.getFilesByName(data.assets[i].symbol + " - 30d").hasNext();
+    if (next3) {
+      var id3 = DriveApp.getFilesByName(data.assets[i].symbol + " - 30d").next().getId();
+    }
+    buildPriceChart(data,data.assets[i].symbol,'30d');
+    if (next3) {
+      DriveApp.getFileById(id3).setTrashed(true);
+    }
+  }
+  emptyTrash();
   return
 }
 
@@ -63,9 +89,11 @@ function getAllPriceChartData() {
         price: parseFloat(all.assets[i].prices.price).toFixed(2),
         priceHistory1d: all.assets[i].prices.PH_1d,
         priceHistory7d: all.assets[i].prices.PH_7d,
+        priceHistory30d: all.assets[i].prices.PH_30d,
         oraclePrice: parseFloat(all.assets[i].prices.oraclePrice).toFixed(2),
         oracleHistory1d: all.assets[i].prices.OH_1d,
         oracleHistory7d: all.assets[i].prices.OH_7d,
+        oracleHistory30d: all.assets[i].prices.OH_30d,
         premium: pre,
         premiumPercentage: preRel,
         last24volume: all.assets[i].statistic.volume,
@@ -85,6 +113,13 @@ function getAllPriceChartData() {
           for (var f = 0; f < data.assets[i].oracleHistory7d.length; f++) {
             if (data.assets[i].priceHistory7d[z].timestamp == data.assets[i].oracleHistory7d[f].timestamp) {
               data.assets[i].priceHistory7d[z].oraclePrice = parseFloat(data.assets[i].oracleHistory7d[f].price).toFixed(2);
+            }
+          }
+        }
+        for (var z = 0; z < data.assets[i].priceHistory30d.length; z++) {
+          for (var f = 0; f < data.assets[i].oracleHistory30d.length; f++) {
+            if (data.assets[i].priceHistory30d[z].timestamp == data.assets[i].oracleHistory30d[f].timestamp) {
+              data.assets[i].priceHistory30d[z].oraclePrice = parseFloat(data.assets[i].oracleHistory30d[f].price).toFixed(2);
             }
           }
         }
@@ -108,10 +143,11 @@ function getAllPriceChartData() {
 
 function getMIRPC() {
   var now = thismoment.getTime();
+  var thirtydaysago = subDaysFromDate(thismoment,30).getTime();
   var oneweekago = subDaysFromDate(thismoment,7).getTime();
   var onedayago = subDaysFromDate(thismoment,1).getTime();
   var payload = {
-    'query': "{ statistic(network: COMBINE) {assetMarketCap totalValueLocked collateralRatio mirCirculatingSupply mirTotalSupply govAPR govAPY latest24h {transactions volume feeVolume mirVolume activeUsers} govAPR govAPY} assets {    symbol    name  statistic {volume liquidity apr apy}  prices {      price      oraclePrice      PH_7d: history(interval: 240, from: " + oneweekago + ", to: " + now + ") {        timestamp        price      }    PH_1d: history(interval: 30, from: " + onedayago + ", to: " + now + ") {        timestamp        price      }      OH_7d: oracleHistory(interval: 240,  from: " + oneweekago + ", to: " + now + ") {        timestamp        price      }   OH_1d: oracleHistory(interval: 30,  from: " + onedayago + ", to: " + now + ") {        timestamp        price      }     }   }}"
+    'query': "{ statistic(network: COMBINE) {assetMarketCap totalValueLocked collateralRatio mirCirculatingSupply mirTotalSupply govAPR govAPY latest24h {transactions volume feeVolume mirVolume activeUsers} govAPR govAPY} assets {    symbol    name  statistic {volume liquidity apr apy}  prices {      price      oraclePrice      PH_7d: history(interval: 240, from: " + oneweekago + ", to: " + now + ") {        timestamp        price      }  PH_30d: history(interval: 720, from: " + thirtydaysago + ", to: " + now + ") {        timestamp        price      }   PH_1d: history(interval: 30, from: " + onedayago + ", to: " + now + ") {        timestamp        price      }      OH_7d: oracleHistory(interval: 240,  from: " + oneweekago + ", to: " + now + ") {        timestamp        price      }   OH_1d: oracleHistory(interval: 30,  from: " + onedayago + ", to: " + now + ") {        timestamp        price      }  OH_30d: oracleHistory(interval: 720,  from: " + thirtydaysago + ", to: " + now + ") {        timestamp        price      }    }   }}"
   }
   var options = formatPostRequest(payload);
   var all = UrlFetchApp.fetch(mirAPI, options);
@@ -119,9 +155,43 @@ function getMIRPC() {
     return JSON.parse(all.getContentText()).data;    
   }
   if (all.getResponseCode() != 200) {
+    Logger.log(all.getContentText())
     notifyAdmin('ERROR','Mirror Statbot MIR API ERROR\n\n' + all.getContentText());
     return;
   }
+}
+  
+function notifyAdmin(method,msg) {
+  GmailApp.sendEmail('mirrorstatbot@gmail.com',method,msg);
+}
+
+function subDaysFromDate(date,d){
+  var result = new Date(date-d*(24*3600*1000));
+  return result
+}
+
+function normalizeSymbol(symbol,symbols) { 
+  for (var i = 0; i < symbols.length; i++) {
+    if (symbols[i].toLowerCase().includes(symbol.toLowerCase())) {
+      return symbols[i];
+    }
+  }
+  return false;
+}
+
+function emptyTrash() {  //////// needs Google Drive API auth!
+  Drive.Files.emptyTrash();
+  return;
+}
+
+function formatPostRequest(payload) {
+  var options = {
+    'method' : 'post',
+    'contentType': 'application/json',
+    'payload' : JSON.stringify(payload),
+    'muteHttpExceptions': true
+  };
+  return options;
 }
 
 function buildPriceChart(data,symbol,timeframe) {
@@ -136,6 +206,9 @@ function buildPriceChart(data,symbol,timeframe) {
       return false;
     }
     if (timeframe == '7d' && (asset.oracleHistory7d[0] == undefined || asset.priceHistory7d[0] == undefined)) {
+      return false;
+    }
+    if (timeframe == '30d' && (asset.oracleHistory30d[0] == undefined || asset.priceHistory30d[0] == undefined)) {
       return false;
     }
     var datatable = Charts.newDataTable()
@@ -157,58 +230,93 @@ function buildPriceChart(data,symbol,timeframe) {
     if (timeframe == '1d') {
       format = 'dd-MM-yy HH:mm'
       for (var i = 0; i < asset.priceHistory1d.length; i++) {
-        var price = parseFloat(asset.priceHistory1d[i].price).toFixed(2)*1000;
-        var oracleprice = parseFloat(asset.priceHistory1d[i].oraclePrice).toFixed(2)*1000;
-        var premium =  price - oracleprice;
-        var perc = parseFloat(premium / oracleprice).toFixed(4)*1000;
-        d = new Date(asset.priceHistory1d[i].timestamp + 3*60*60*1000);
-        datatable.addRow([d,price/1000,oracleprice/1000,perc/1000]);
-        if (perc > highestperc) {
-          highestperc = perc;
+        if (asset.priceHistory1d[i].price != undefined && asset.priceHistory1d[i].oraclePrice != undefined && asset.priceHistory1d[i].price != null && asset.priceHistory1d[i].oraclePrice != null && asset.priceHistory1d[i].price.toString() != 'NaN' && asset.priceHistory1d[i].oraclePrice.toString() != 'NaN') {
+          var price = parseFloat(asset.priceHistory1d[i].price).toFixed(2)*1000;
+          var oracleprice = parseFloat(asset.priceHistory1d[i].oraclePrice).toFixed(2)*1000;
+          var premium =  price - oracleprice;
+          var perc = parseFloat(premium / oracleprice).toFixed(4)*1000;
+          d = new Date(asset.priceHistory1d[i].timestamp + 3*60*60*1000);
+          datatable.addRow([d,price/1000,oracleprice/1000,perc/1000]);
+          if (perc > highestperc) {
+            highestperc = perc;
+          }
+          if (perc < lowestperc) {
+            lowestperc = perc;
+          }
+          if (price > highestprice) {
+            highestprice = price;
+          }
+          if (price < lowestprice) {
+            lowestprice = price;
+          }
+          if (oracleprice > highestoracle) {
+            highestoracle = oracleprice;
+          }
+          if (oracleprice < lowestoracle) {
+            lowestoracle = oracleprice;
+          }
         }
-        if (perc < lowestperc) {
-          lowestperc = perc;
-        }
-        if (price > highestprice) {
-          highestprice = price;
-        }
-        if (price < lowestprice) {
-          lowestprice = price;
-        }
-        if (oracleprice > highestoracle) {
-          highestoracle = oracleprice;
-        }
-        if (oracleprice < lowestoracle) {
-          lowestoracle = oracleprice;
-        }
-      }
-    } 
+      } 
+    }
     
     if (timeframe == '7d') {
       for (var i = 0; i < asset.priceHistory7d.length; i++) {
-        var price = parseFloat(asset.priceHistory7d[i].price).toFixed(2)*1000;
-        var oracleprice = parseFloat(asset.priceHistory7d[i].oraclePrice).toFixed(2)*1000;
-        var premium =  price - oracleprice;
-        var perc = parseFloat(premium / oracleprice).toFixed(4)*1000;
-        d = new Date(asset.priceHistory7d[i].timestamp + 3*60*60*1000);
-        datatable.addRow([d,price/1000,oracleprice/1000,perc/1000]);
-        if (perc > highestperc) {
-          highestperc = perc;
+        if (asset.priceHistory7d[i].price != undefined && asset.priceHistory7d[i].oraclePrice != undefined && asset.priceHistory7d[i].price != null && asset.priceHistory7d[i].oraclePrice != null && asset.priceHistory7d[i].price.toString() != 'NaN' && asset.priceHistory7d[i].oraclePrice.toString() != 'NaN') {
+          var price = parseFloat(asset.priceHistory7d[i].price).toFixed(2)*1000;
+          var oracleprice = parseFloat(asset.priceHistory7d[i].oraclePrice).toFixed(2)*1000;
+          var premium =  price - oracleprice;
+          var perc = parseFloat(premium / oracleprice).toFixed(4)*1000;
+          d = new Date(asset.priceHistory7d[i].timestamp + 3*60*60*1000);
+          datatable.addRow([d,price/1000,oracleprice/1000,perc/1000]);
+          if (perc > highestperc) {
+            highestperc = perc;
+          }
+          if (perc < lowestperc) {
+            lowestperc = perc;
+          }
+          if (price > highestprice) {
+            highestprice = price;
+          }
+          if (price < lowestprice) {
+            lowestprice = price;
+          }
+          if (oracleprice > highestoracle) {
+            highestoracle = oracleprice;
+          }
+          if (oracleprice < lowestoracle) {
+            lowestoracle = oracleprice;
+          }
         }
-        if (perc < lowestperc) {
-          lowestperc = perc;
-        }
-        if (price > highestprice) {
-          highestprice = price;
-        }
-        if (price < lowestprice) {
-          lowestprice = price;
-        }
-        if (oracleprice > highestoracle) {
-          highestoracle = oracleprice;
-        }
-        if (oracleprice < lowestoracle) {
-          lowestoracle = oracleprice;
+      }
+    }
+
+     if (timeframe == '30d') {
+      for (var i = 0; i < asset.priceHistory7d.length; i++) {
+        if (asset.priceHistory30d[i].price != undefined && asset.priceHistory30d[i].oraclePrice != undefined && asset.priceHistory30d[i].price != null && asset.priceHistory30d[i].oraclePrice != null && asset.priceHistory30d[i].price.toString() != 'NaN' && asset.priceHistory30d[i].oraclePrice.toString() != 'NaN') {
+          var price = parseFloat(asset.priceHistory30d[i].price).toFixed(2)*1000;
+          var oracleprice = parseFloat(asset.priceHistory30d[i].oraclePrice).toFixed(2)*1000;
+          var premium =  price - oracleprice;
+          var perc = parseFloat(premium / oracleprice).toFixed(4)*1000;
+          d = new Date(asset.priceHistory30d[i].timestamp + 3*60*60*1000);
+          datatable.addRow([d,price/1000,oracleprice/1000,perc/1000]);
+          if (perc > highestperc) {
+            highestperc = perc;
+          }
+          if (perc < lowestperc) {
+            lowestperc = perc;
+          }
+          if (price > highestprice) {
+            highestprice = price;
+          }
+          if (price < lowestprice) {
+            lowestprice = price;
+          }
+          if (oracleprice > highestoracle) {
+            highestoracle = oracleprice;
+          }
+          if (oracleprice < lowestoracle) {
+            lowestoracle = oracleprice;
+          }
         }
       }
     }
@@ -337,6 +445,10 @@ function buildPriceChart(data,symbol,timeframe) {
     }
     if (timeframe == '7d') {
       drive7dcharts.createFile(blob);
+      return true;
+    }
+    if (timeframe == '30d') {
+      drive30dcharts.createFile(blob);
       return true;
     }
   }
