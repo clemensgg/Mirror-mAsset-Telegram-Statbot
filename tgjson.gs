@@ -114,7 +114,13 @@ function keyboardMain(){
           callback_data: "charts_7d"
         },
         {
-          text: "info",
+          text: "30d charts",
+          callback_data: "charts_3d"
+        }
+      ],
+      [
+        {
+          text: "bot info",
           callback_data: "info"
         }
       ]
