@@ -181,3 +181,223 @@ function isFloat(n){
 function isInt(n){
     return Number(n) === n && n % 1 === 0;
 }
+
+function buildLPChart(data,symbol,timeframe) {
+  var d = [];
+  for (var i = 0; i < data.length; i++) {
+    for (var f = 0; f < data[i].assets.length; f++) {
+      if (data[i].timestamp != null && data[i].timestamp != undefined && data[i].timestamp != NaN && data[i].assets[f].symbol == symbol) {
+        d.push([data[i].timestamp,data[i].assets[f].aprLong,data[i].assets[f].liquidity/1000000,data[i].assets[f].last24volume/1000000,data[i].assets[f].aprShort]);
+      }
+    }
+  }
+  var datatable = Charts.newDataTable()
+  .addColumn(Charts.ColumnType.DATE, 'timestamp')
+  .addColumn(Charts.ColumnType.NUMBER, '24h volume')
+  .addColumn(Charts.ColumnType.NUMBER, 'Liquidity')
+  .addColumn(Charts.ColumnType.NUMBER, 'Long APR %')
+  .addColumn(Charts.ColumnType.NUMBER, 'Short APR %');
+  
+  var highestapr = 0;
+  var lowestapr = d[0][5];
+  if (d[0][1] < d[0][5]) { 
+    lowestapr = d[0][1];
+  }
+  var highestliq = 0;
+  var highestvol = 0;
+  var tf = 2;
+  var format = 'dd-MM-yy HH:mm'
+  if (timeframe == '7d') {
+    tf = 16;
+    format = 'dd-MM-yy';
+  }
+  if (timeframe == '30d') {
+    tf = 48;
+    format = 'dd-MM-yy';
+  }
+  highestliq = d[0][2];
+  highestvol = d[0][3];
+  for (var i = 0; i < d.length; i = i+tf) {
+    var aprlong = d[i][1];
+    var liq = d[i][2];
+    var vol = d[i][3];
+    var aprshort = d[i][4];
+    var ts = new Date(d[i][0]);
+    if (timeframe == '1d' && (thismoment - (d[i][0] - 3*60*60*1000)) <= oneday) {
+      datatable.addRow([ts,vol,liq,aprlong,aprshort]);
+      if (vol > highestvol) {
+        highestvol = vol;
+      }
+      if (liq > highestliq) {
+        highestliq = liq;
+      }
+      if (aprlong > highestapr && aprlong > aprshort) {
+        highestapr = aprlong;
+      }
+      if (aprshort > highestapr && aprshort > aprlong) {
+        highestapr = aprshort;
+      }
+      if (aprlong < lowestapr && aprlong < aprshort) {
+        lowestapr = aprlong;
+      }
+      if (aprshort < lowestapr && aprshort < aprlong) {
+        lowestapr = aprshort;
+      }
+    }
+    if (timeframe == '7d' && (thismoment - (d[i][0] - 3*60*60*1000)) <= sevendays) {
+      datatable.addRow([ts,vol,liq,aprlong,aprshort]);
+      if (vol > highestvol) {
+        highestvol = vol;
+      }
+      if (liq > highestliq) {
+        highestliq = liq;
+      }
+      if (aprlong > highestapr && aprlong > aprshort) {
+        highestapr = aprlong;
+      }
+      if (aprshort > highestapr && aprshort > aprlong) {
+        highestapr = aprshort;
+      }
+      if (aprlong < lowestapr && aprlong < aprshort) {
+        lowestapr = aprlong;
+      }
+      if (aprshort < lowestapr && aprshort < aprlong) {
+        lowestapr = aprshort;
+      }
+    }
+    if (timeframe == '30d' && (thismoment - (d[i][0] - 3*60*60*1000)) <= thirtydays) {
+      datatable.addRow([ts,vol,liq,aprlong,aprshort]);
+      if (vol > highestvol) {
+        highestvol = vol;
+      }
+      if (liq > highestliq) {
+        highestliq = liq;
+      }
+      if (aprlong > highestapr && aprlong > aprshort) {
+        highestapr = aprlong;
+      }
+      if (aprshort > highestapr && aprshort > aprlong) {
+        highestapr = aprshort;
+      }
+      if (aprlong < lowestapr && aprlong < aprshort) {
+        lowestapr = aprlong;
+      }
+      if (aprshort < lowestapr && aprshort < aprlong) {
+        lowestapr = aprshort;
+      }
+    }
+  }
+  
+  var textStyleBuilder = Charts.newTextStyle().setColor('white').setFontSize(20);
+  var textStyleBuilder2 = Charts.newTextStyle().setColor('white').setFontSize(16);
+  var textStyleBuilder3 = Charts.newTextStyle().setColor('white').setFontSize(14);
+  var titlestyle = textStyleBuilder.build();
+  var xstyle = textStyleBuilder2.build();
+  var ystyle = textStyleBuilder2.build();
+  var legendstyle = textStyleBuilder3.build();
+  
+  var series = {
+    0: {
+      targetAxisIndex: 1,
+      type: 'steppedArea',
+      areaOpacity: 0.4
+    },
+    1: {
+      targetAxisIndex: 1,
+      type: 'line',
+      curveType: 'function'
+    },
+    2: {
+      targetAxisIndex: 0,
+      type: 'line',
+      curveType: 'function',
+      lineDashStyle: [4, 4]
+    },
+    3: {
+      targetAxisIndex: 0,
+      type: 'line',
+      curveType: 'function',
+      lineDashStyle: [4, 4]
+    }
+  }
+  
+  var vaxes = {
+    0: {
+      format: '#,### %',
+      textStyle: {
+        color: color.white,
+        italic: false
+      },
+      gridlines: {
+        color: color.grey
+      },
+      minorGridlines: {
+        count: 0
+      },
+      viewWindow: {
+        max: highestapr*1.10,
+        min: 0
+      },
+      baselineColor: color.deepblue
+    },
+    1: {
+      textStyle: {
+        format: '#.### M',
+        color: color.white,
+        italic: false
+      },
+      gridlines: {
+        count: 0
+      },
+      minorGridlines: {
+        count: 0
+      },
+      baselineColor: color.deepblue
+    }
+  }
+  
+  var haxes = [
+    {
+      format: format,
+      gridlines: {
+        color: color.grey
+      },
+      textStyle: {
+        color: color.white,
+        italic: false
+      },
+      baselineColor: color.deepblue,
+    }
+  ]
+  
+  var chart = Charts.newLineChart()
+  .setTitle('mirror.finance - ' + symbol + ' - LP chart - ' + timeframe)
+  .setDimensions(800, 500)
+  .setBackgroundColor(color.deepblue)
+  .setColors([color.grey,color.white,color.sky,color.orange])
+  .setTitleTextStyle(titlestyle)
+  .setXAxisTitleTextStyle(xstyle)
+  .setYAxisTitleTextStyle(ystyle)
+  .setLegendTextStyle(legendstyle)
+  .setDataTable(datatable)
+  .setOption('series', series)
+  .setOption('vAxes', vaxes)
+  .setOption('hAxes', haxes);
+  
+  chart = chart.build();
+  
+  var imageData = Utilities.base64Encode(chart.getAs('image/png').getBytes());
+  var blob = Utilities.newBlob(Utilities.base64Decode(imageData), MimeType.JPEG, symbol + ' - LP chart - ' + timeframe);
+  if (timeframe == '1d') {
+    drive1dcharts.createFile(blob);
+    return true;
+  }
+  if (timeframe == '7d') {
+    drive7dcharts.createFile(blob);
+    return true;
+  }
+  if (timeframe == '30d') {
+    drive30dcharts.createFile(blob);
+    return true;
+  }
+}
