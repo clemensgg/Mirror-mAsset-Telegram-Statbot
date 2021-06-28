@@ -10,6 +10,9 @@ function getLivePriceChart(symbol, timeframe) {
 function getAssetDataPriceChart(symbol, timeframe) {
   var c = 0;
   var asset = getMIRAPIpricecharts(symbol, timeframe);
+  if (asset == false) {
+    return false;
+  }
   asset.history = [];
   for (var i = 0; i < asset.prices.history.length; i++) {
     if (asset.prices.history[i].price != NaN && asset.prices.history[i].price != null && asset.prices.history[i].price != undefined && asset.prices.history[i].price != '') {
@@ -162,7 +165,7 @@ function buildLivePriceChart(asset,timeframe) {
         count: 0
       },
       gridlines: {
-        color: color.blue
+        color: color.grey
       },
       viewWindow: {
         max: highestperc + (3.2 * percrange),
@@ -172,7 +175,7 @@ function buildLivePriceChart(asset,timeframe) {
     },
     {
       textStyle: {
-        color: color.sky,
+        color: color.white,
         italic: false
       },
       gridlines: {
@@ -193,7 +196,7 @@ function buildLivePriceChart(asset,timeframe) {
     {
       format: format,
       gridlines: {
-        color: color.blue
+        color: color.grey
       },
       textStyle: {
         color: color.white,
