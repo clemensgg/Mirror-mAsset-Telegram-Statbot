@@ -25,7 +25,7 @@ function generateMirrorStatsText() {
   var body = '';
   if (assets != false) {
     var mir = 'MIR/UST price: ' + data.mirprice + ' <code>(' + getTrendPrefix(data.mirpriceChange24hPerc) + data.mirpriceChange24hPerc + ' %)</code>';
-    body = mir + linebreak + 'MIR circ. supply: ' + parseFloat(stats.mirSupplyCirculating).toLocaleString() + '\nMIR total supply: ' + parseFloat(stats.mirSupplyTotal).toLocaleString() + '\nMIR gov APY: ' + (parseFloat(stats.govAPY)).toLocaleString() + ' %';
+    body = mir + linebreak + 'MIR total supply: ' + parseFloat(stats.mirSupplyTotal).toLocaleString() + '\nMIR circ. supply: ' + parseFloat(stats.mirSupplyCirculating).toLocaleString() + '\nMIR staked: ' + parseFloat(stats.mirSupplyStaked).toLocaleString() + '\nMIR in LP: ' + parseFloat(stats.mirSupplyLiquidity).toLocaleString() + '\n\nMIR staked: ' + (parseFloat(stats.mirSupplyStaked)/parseFloat(stats.mirSupplyCirculating)*100).toLocaleString() + ' %\nMIR gov APY (active): ' + (parseFloat(stats.govAPY)).toLocaleString() + ' %';
     body = body + linebreak + 'total mAsset cap:\n' + parseFloat(stats.assetcap).toLocaleString() + ' UST\ntotal pool liquidity:\n' + parseFloat(stats.totalLiquidity).toLocaleString() + ' UST\ntotal value locked:\n' + parseFloat(stats.totalValueLocked).toLocaleString() + ' UST\ncollateral-ratio: ' + (parseFloat(stats.cratio)).toLocaleString() + ' %';
     body = body + linebreak + '<b>last 24h</b>\nusers: ' + parseFloat(stats.last24users).toLocaleString() + '\ntransactions: ' + parseFloat(stats.last24tx).toLocaleString() + '\nvol. total: ' + parseFloat(stats.last24totalvol).toLocaleString() + ' UST\nvol. MIR: ' + parseFloat(stats.last24mirvol).toLocaleString() + ' UST\nfees payed: ' + parseFloat(stats.last24fee).toLocaleString() + ' UST\n24h volume / liquidity: ' + data.stats.volByLiqFactor + ' %';
     text = headfinance + linebreak + body + linebreak + offtext;
@@ -59,7 +59,7 @@ function generateAllAssetsStatsText() {
   var body = '';
   if (assets != false) {
     for (var i = 0; i < assets.length; i++) {
-      body = body + '<b>' + assets[i].symbol + '</b>\n' + assets[i].name + '\nliquidity: ' + parseFloat(assets[i].liquidity).toLocaleString() + ' UST\n24h volume: ' + parseFloat(assets[i].volume).toLocaleString() + ' UST\nAPR: ' + assets[i].apr + ' %\nAPY: ' + assets[i].apy + ' %' + linebreak;
+      body = body + '<b>' + assets[i].symbol + '</b>\n' + assets[i].name + '\nliquidity: ' + parseFloat(assets[i].liquidity).toLocaleString() + ' UST\n24h volume: ' + parseFloat(assets[i].volume).toLocaleString() + ' UST\nlong farm (APR/APY): ' + assets[i].aprLong.toLocaleString() + ' / ' + assets[i].apyLong.toLocaleString() + ' %\nshort farm (APR/APY): ' + assets[i].aprShort.toLocaleString() + ' / ' + assets[i].apyShort.toLocaleString() + ' %' + linebreak;
     }
     body = body.slice(0,-2);
     text = (body + linebreak + offtext);
@@ -95,8 +95,6 @@ function generateAssetStatsText(asset) {
   var data = getCache();
   data.usersymbol = asset;
   var assets = data.assets;
-  var symbols = data.symbols;
-  var text = '';
   var body = '';
   var asset = false;
   for (var i = 0; i < assets.length; i++) {
@@ -105,8 +103,7 @@ function generateAssetStatsText(asset) {
     }
   }
   if (asset != false) {
-    body = '<b>' + asset.symbol + '</b>\n' + asset.name + '\nliquidity: ' + parseFloat(asset.liquidity).toLocaleString() + ' UST\n24h volume: ' + parseFloat(asset.volume).toLocaleString() + ' UST\nAPR: ' + asset.apr + ' %\nAPY: ' + asset.apy + ' %';
-    text = body + '\n' + bothandle;
+    body =  '<b>' + asset.symbol + '</b>\n' + asset.name + '\nliquidity: ' + parseFloat(asset.liquidity).toLocaleString() + ' UST\n24h volume: ' + parseFloat(asset.volume).toLocaleString() + ' UST\nlong farm (APR/APY): ' + asset.aprLong.toLocaleString() + ' / ' + asset.apyLong.toLocaleString() + ' %\nshort farm (APR/APY): ' + asset.aprShort.toLocaleString() + ' / ' + asset.apyShort.toLocaleString() + ' %';
   }
-  return text;
+  return body;
 }
