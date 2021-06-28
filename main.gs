@@ -18,15 +18,16 @@ var fifteenminutes = 15*60*1000;
 var fourhours = 4*60*60*1000;
 var threemonths = oneday*92;
 var color = {
-  sky: '#47d7e2',
-  deepblue: '#121a2f',
-  blue: '#172240',
+  sky: '#66adff',
+  deepblue: '#1c1c1c',
+  blue: '#55779d',
   grey: '#505466',
   white: '#ffffff',
-  orange: '#d96718',
-  darkorange: '#8a410f'
+  orange: '#f15e7e',
+  darkorange: '#b4455d'
 }
 var adminmail = 'mirrorstatbot@gmail.com';
+var adminid = '';
 
 //// SET / DELETE WEBHOOK TO TG BOT
 function setWebHook() {
